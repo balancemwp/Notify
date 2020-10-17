@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentEmail.Core" Version="2.8.0" />
+    <PackageReference Include="FluentEmail.MailKit" Version="2.8.0" />
+    <PackageReference Include="FluentEmail.Razor" Version="2.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Notify.Models\Notify.Models.csproj" />
+    <ProjectReference Include="..\Notify.Services.Infrastructure\Notify.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
