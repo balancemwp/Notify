@@ -9,6 +9,6 @@ namespace Notify.Entities
         public string Name { get; set; }
         public string Domain { get; set; }
 
-        public virtual ICollection<ClientConfiguration> ClientConfigurations { get; set; }
+        public virtual ICollection<Recipient> Recipients { get; set; }
     }
 }

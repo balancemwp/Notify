@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Notify.Entities\Notify.Entities.csproj" />
     <ProjectReference Include="..\Notify.Models\Notify.Models.csproj" />
   </ItemGroup>
 

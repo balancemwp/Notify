@@ -5,11 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Notify.Entities\Notify.Entities.csproj" />
+    <Compile Remove="Migrations\20201017163444_Add-Recipient.cs" />
+    <Compile Remove="Migrations\20201017163444_Add-Recipient.Designer.cs" />
+    <Compile Remove="Migrations\20201017164617_Add-Recipient.cs" />
+    <Compile Remove="Migrations\20201017164617_Add-Recipient.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories\" />
+    <ProjectReference Include="..\Notify.Entities\Notify.Entities.csproj" />
+    <ProjectReference Include="..\Notify.Services.Infrastructure\Notify.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace Emailer
 {
@@ -20,7 +21,11 @@ namespace Emailer
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.ConfigureLogging((hostingContext, config) => { config.ClearProviders(); });
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseSerilog();
+                    webBuilder.UseSetting("detailedErrors", "true");
+                    webBuilder.CaptureStartupErrors(true);
                 });
     }
 }

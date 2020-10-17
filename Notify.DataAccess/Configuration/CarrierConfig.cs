@@ -20,7 +20,7 @@ namespace Notify.DataAccess.Configuration
             builder.Property(obj => obj.Name).IsRequired().HasMaxLength(100);
             builder.Property(obj => obj.Domain).IsRequired().HasMaxLength(50);
 
-            builder.HasMany(obj => obj.ClientConfigurations)
+            builder.HasMany(obj => obj.Recipients)
                .WithOne(obj => obj.Carrier)
                .HasForeignKey(b => b.CarrierId);
         }

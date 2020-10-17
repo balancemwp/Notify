@@ -13,6 +13,9 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using Emailer.Setup;
+using Notify.Setup;
+using Microsoft.EntityFrameworkCore;
+using Notify.DataAccess.EFCore;
 
 namespace Emailer
 {
@@ -28,6 +31,9 @@ namespace Emailer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var connectionString = Configuration.GetConnectionString("NotifyDatabase");
+            services.AddDbContext<NotifyDataContext>(options => options.UseSqlServer(connectionString));
+
             RegisterDependencies(services);
 
             services.ConfigureSwagger();
@@ -83,7 +89,9 @@ namespace Emailer
 
         private void RegisterDependencies(IServiceCollection services)
         {
-            DependenciesConfig.ConfigureDependencies(services);
+            var connectionString = Configuration.GetConnectionString("NotifyDatabase");
+
+            DependenciesConfig.ConfigureDependencies(services, connectionString);
         }
     }
 }
