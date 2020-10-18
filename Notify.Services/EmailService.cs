@@ -15,32 +15,64 @@ using System.Linq;
 using FluentEmail.Core.Models;
 using System.Collections.Generic;
 using Notify.Entities;
+using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace Notify.Services
 {
     public class EmailService : IEmailService
     {
         private IClientConfigurationRepository clientConfigurationRepository;
-        private IHostingEnvironment hostingEnvironment;
-        private IConfiguration config;
+          private IConfiguration config;
+        private ILogger<EmailService> logger;
 
         public EmailService(IClientConfigurationRepository clientConfigurationRepository,
-                            IHostingEnvironment hostingEnvironment, IConfiguration config)
+                            IConfiguration config, ILogger<EmailService> logger)
         {
             this.clientConfigurationRepository = clientConfigurationRepository;
-            this.hostingEnvironment = hostingEnvironment;
             this.config = config;
+            this.logger = logger;
         }
 
         public bool SendEmail(ClientMessage clientMessage)
         {
-            var clientConfig = this.clientConfigurationRepository.Get(clientMessage.Id).Result;
+            var clientConfig = clientConfigurationRepository.Get(clientMessage.Id).Result;
 
             var recipientList = clientConfig.Recipients.ToList();
-            var textTo = new List<Address>();
             var emailTo = new List<Address>();
+            var textTo = new List<Address>();
 
-            foreach (var item in recipientList)
+            setRecipientList(recipientList, ref emailTo, ref textTo);
+
+            Email.DefaultRenderer = new RazorRenderer();
+
+            var templatePath = config["Templates:Email"];
+
+            var currentDirectory = Directory.GetCurrentDirectory();
+
+            var emailSubject = $"Contact Request From {clientMessage.Name}";
+
+            var email = createEmail(clientConfig.EmailUserName, emailTo, emailSubject, $"{currentDirectory}/{templatePath}/ContactRequest.cshtml",
+                               clientMessage);
+
+            var emailSendResponse = sendEmail(email, clientConfig);
+
+            handleResult(emailSendResponse, "email");
+
+            var textSubject = "Contact Request";
+            var textEmail = createEmail(clientConfig.EmailUserName, textTo, textSubject, $"{currentDirectory}/{templatePath}/ContactRequestText.cshtml",
+                                   clientMessage);
+
+            var smsSendResponse = sendEmail(textEmail, clientConfig);
+            
+            handleResult(smsSendResponse, "text");
+
+            return true;
+        }
+
+        private void setRecipientList(List<Recipient> recipients, ref List<Address> emailTo, ref List<Address> textTo)
+        {
+            foreach (var item in recipients)
             {
                 if (item.SendEmail)
                 {
@@ -54,33 +86,16 @@ namespace Notify.Services
                     textTo.Add(address);
                 }
             }
+        }
 
-            Email.DefaultRenderer = new RazorRenderer();
-
-            var templatePath = config["Templates:Email"];
-            var welcomeEmail = new ContactRequestEmail() { Name = clientMessage.Name, Phone = clientMessage.Phone, 
-                                                           Email = clientMessage.From, Message = clientMessage.Message  };
-            var currentDirectory = Directory.GetCurrentDirectory();
-
-            var subject = $"Contact Request From {clientMessage.Name}";
-
+        private IFluentEmail createEmail(string from, List<Address> to, string subject, string template, ClientMessage clientMessage)
+        {
             var email = Email
-                            .From(clientConfig.EmailUserName)
-                            .To(emailTo)
-                            .Subject(subject)
-                            .UsingTemplateFromFile($"{currentDirectory}/{templatePath}/ContactRequest.cshtml", welcomeEmail);
-
-            var ret = sendEmail(email, clientConfig);
-
-            var sms = Email
-                           .From(clientConfig.EmailUserName)
-                           .To(textTo)
+                           .From(from)
+                           .To(to)
                            .Subject(subject)
-                           .UsingTemplateFromFile($"{currentDirectory}/{templatePath}/ContactRequestText.cshtml", welcomeEmail);
-
-            var smsRet = sendEmail(sms, clientConfig);
-
-            return true;
+                           .UsingTemplateFromFile(template, clientMessage);
+            return email;
         }
 
         private async Task<SendResponse> sendEmail(IFluentEmail email, ClientConfiguration clientConfig)
@@ -97,6 +112,27 @@ namespace Notify.Services
             email.Sender = new MailKitSender(option);
             var status = await email.SendAsync();
             return status;
+        }
+        private void handleResult(Task<SendResponse> response, string type) 
+        {
+            var emailResult = response.Result;
+
+            if (emailResult.Successful)
+            {
+                logger.LogInformation($"{type} {emailResult.MessageId} sent successfully");
+            }
+            else
+            {
+                var errors = new StringBuilder();
+
+                foreach (var item in emailResult.ErrorMessages)
+                {
+                    errors.Append(item).Append("|");
+                }
+
+                var errorMessage = errors.ToString();
+                logger.LogError($"email delivery failed. {errorMessage}");
+            }
         }
 
     }
