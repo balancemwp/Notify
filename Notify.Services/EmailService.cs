@@ -44,8 +44,6 @@ namespace Notify.Services
 
             setRecipientList(recipientList, ref emailTo, ref textTo);
 
-            Email.DefaultRenderer = new RazorRenderer();
-
             var templatePath = config["Templates:Email"];
 
             var currentDirectory = Directory.GetCurrentDirectory();
