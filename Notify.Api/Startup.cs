@@ -16,6 +16,7 @@ using Emailer.Setup;
 using Notify.Setup;
 using Microsoft.EntityFrameworkCore;
 using Notify.DataAccess.EFCore;
+using Hangfire;
 
 namespace Emailer
 {
@@ -49,6 +50,8 @@ namespace Emailer
                 options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
             });
 
+            services.ConfigureHangfire(Configuration);
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -68,6 +71,9 @@ namespace Emailer
             app.UseAuthorization();
 
             app.UseHttpsRedirection();
+
+            app.UseHangfireDashboard("/jobs");
+            app.UseHangfireServer();
 
             app.UseMiddleware<ErrorHandlingMiddleware>();
 

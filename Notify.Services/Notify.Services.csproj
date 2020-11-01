@@ -8,6 +8,7 @@
     <PackageReference Include="FluentEmail.Core" Version="2.8.0" />
     <PackageReference Include="FluentEmail.MailKit" Version="2.8.0" />
     <PackageReference Include="FluentEmail.Razor" Version="2.8.0" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.17" />
   </ItemGroup>
 
   <ItemGroup>

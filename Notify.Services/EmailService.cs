@@ -23,7 +23,7 @@ namespace Notify.Services
     public class EmailService : IEmailService
     {
         private IClientConfigurationRepository clientConfigurationRepository;
-          private IConfiguration config;
+        private IConfiguration config;
         private ILogger<EmailService> logger;
 
         public EmailService(IClientConfigurationRepository clientConfigurationRepository,
@@ -88,11 +88,14 @@ namespace Notify.Services
 
         private IFluentEmail createEmail(string from, List<Address> to, string subject, string template, ClientMessage clientMessage)
         {
+            Email.DefaultRenderer = new RazorRenderer();
+
             var email = Email
                            .From(from)
                            .To(to)
                            .Subject(subject)
                            .UsingTemplateFromFile(template, clientMessage);
+
             return email;
         }
 
