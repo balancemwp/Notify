@@ -14,6 +14,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Notify.Models\Notify.Models.csproj" />
     <ProjectReference Include="..\Notify.Services.Infrastructure\Notify.Infrastructure.csproj" />
+    <ProjectReference Include="..\Notify.Utitlity\Notify.Utitlity.csproj" />
   </ItemGroup>
 
 </Project>

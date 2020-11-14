@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using Notify.Entities;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using Notify.Utitlity;
 
 namespace Notify.Services
 {
@@ -101,11 +102,21 @@ namespace Notify.Services
 
         private async Task<SendResponse> sendEmail(IFluentEmail email, ClientConfiguration clientConfig)
         {
+            var token = config["SmtpOptions:Signature"];
             var option = new SmtpClientOptions();
+            var key256 = new byte[32];
+            var nonSecretOrg = Encoding.UTF8.GetBytes(token);
 
-            option.Server = clientConfig.Server;
-            option.User = clientConfig.EmailUserName;
-            option.Password = clientConfig.EmailPassword;
+            for (int i = 0; i < 32; i++)
+                key256[i] = Convert.ToByte(i % 256);
+
+            var server = AESGCM.SimpleDecrypt(clientConfig.Server, key256, nonSecretOrg.Length);
+            var userName = AESGCM.SimpleDecrypt(clientConfig.EmailUserName, key256, nonSecretOrg.Length);
+            var password = AESGCM.SimpleDecrypt(clientConfig.EmailPassword, key256, nonSecretOrg.Length);
+
+            option.Server = server;
+            option.User = userName;
+            option.Password = password;
             option.Port = clientConfig.Port;
             option.RequiresAuthentication = clientConfig.RequiresAuthentication;
             option.UseSsl = clientConfig.UseSsl;
