@@ -39,6 +39,8 @@ namespace Notify.Services
         {
             var clientConfig = clientConfigurationRepository.Get(clientMessage.Id).Result;
 
+            decrypt(ref clientConfig);
+
             var recipientList = clientConfig.Recipients.ToList();
             var emailTo = new List<Address>();
             var textTo = new List<Address>();
@@ -102,21 +104,22 @@ namespace Notify.Services
 
         private async Task<SendResponse> sendEmail(IFluentEmail email, ClientConfiguration clientConfig)
         {
-            var token = config["SmtpOptions:Signature"];
+            //var token = config["SmtpOptions:Signature"];
+            //var key256 = new byte[32];
+            //var nonSecretOrg = Encoding.UTF8.GetBytes(token);
+
+            //for (int i = 0; i < 32; i++)
+            //    key256[i] = Convert.ToByte(i % 256);
+
+            //var server = AESGCM.SimpleDecrypt(clientConfig.Server, key256, nonSecretOrg.Length);
+            //var userName = AESGCM.SimpleDecrypt(clientConfig.EmailUserName, key256, nonSecretOrg.Length);
+            //var password = AESGCM.SimpleDecrypt(clientConfig.EmailPassword, key256, nonSecretOrg.Length);
+
             var option = new SmtpClientOptions();
-            var key256 = new byte[32];
-            var nonSecretOrg = Encoding.UTF8.GetBytes(token);
 
-            for (int i = 0; i < 32; i++)
-                key256[i] = Convert.ToByte(i % 256);
-
-            var server = AESGCM.SimpleDecrypt(clientConfig.Server, key256, nonSecretOrg.Length);
-            var userName = AESGCM.SimpleDecrypt(clientConfig.EmailUserName, key256, nonSecretOrg.Length);
-            var password = AESGCM.SimpleDecrypt(clientConfig.EmailPassword, key256, nonSecretOrg.Length);
-
-            option.Server = server;
-            option.User = userName;
-            option.Password = password;
+            option.Server = clientConfig.Server;
+            option.User = clientConfig.EmailUserName;
+            option.Password = clientConfig.EmailPassword;
             option.Port = clientConfig.Port;
             option.RequiresAuthentication = clientConfig.RequiresAuthentication;
             option.UseSsl = clientConfig.UseSsl;
@@ -145,6 +148,21 @@ namespace Notify.Services
                 var errorMessage = errors.ToString();
                 logger.LogError($"email delivery failed. {errorMessage}");
             }
+        }
+
+        private void decrypt(ref ClientConfiguration configuration)
+        {
+            var token = config["SmtpOptions:Signature"];
+            var option = new SmtpClientOptions();
+            var key256 = new byte[32];
+            var nonSecretOrg = Encoding.UTF8.GetBytes(token);
+
+            for (int i = 0; i < 32; i++)
+                key256[i] = Convert.ToByte(i % 256);
+
+            configuration.Server = AESGCM.SimpleDecrypt(configuration.Server, key256, nonSecretOrg.Length);
+            configuration.EmailUserName = AESGCM.SimpleDecrypt(configuration.EmailUserName, key256, nonSecretOrg.Length);
+            configuration.EmailPassword = AESGCM.SimpleDecrypt(configuration.EmailPassword, key256, nonSecretOrg.Length);
         }
 
     }
