@@ -18,5 +18,7 @@ namespace Notify.Entities
 
         public virtual ICollection<Recipient> Recipients { get; set; }
 
+        public virtual ICollection<ClientKey> ClientKeys { get; set; }
+
     }
 }

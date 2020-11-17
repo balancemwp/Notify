@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Notify.DataAccess.Configuration
 {
-    public class ClientConfigurationConfig: BaseEntityConfig<ClientConfiguration>
+    public class ClientConfigurationConfig : BaseEntityConfig<ClientConfiguration>
     {
         public ClientConfigurationConfig() : base("ClientConfiguration")
         {
@@ -19,14 +19,14 @@ namespace Notify.DataAccess.Configuration
 
             builder.Property(obj => obj.ApplicationName).IsRequired().HasMaxLength(50);
             builder.Property(obj => obj.UserId).IsRequired();
-            builder.Property(obj => obj.EmailUserName).IsRequired().HasMaxLength(50);
-            builder.Property(obj => obj.EmailPassword).IsRequired().HasMaxLength(25);
-            builder.Property(obj => obj.Server).IsRequired().HasMaxLength(50);
+            builder.Property(obj => obj.EmailUserName).IsRequired().HasMaxLength(250);
+            builder.Property(obj => obj.EmailPassword).IsRequired().HasMaxLength(250);
+            builder.Property(obj => obj.Server).IsRequired().HasMaxLength(250);
             builder.Property(obj => obj.Port).IsRequired();
             builder.Property(obj => obj.RequiresAuthentication).IsRequired();
             builder.Property(obj => obj.UseSsl).IsRequired();
 
-            builder.HasMany(obj => obj.Recipients)
+            builder.HasMany(obj => obj.ClientKeys)
              .WithOne(obj => obj.ClientConfiguration)
              .HasForeignKey(b => b.ClientConfigurationId);
         }

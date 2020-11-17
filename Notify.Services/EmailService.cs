@@ -104,16 +104,6 @@ namespace Notify.Services
 
         private async Task<SendResponse> sendEmail(IFluentEmail email, ClientConfiguration clientConfig)
         {
-            //var token = config["SmtpOptions:Signature"];
-            //var key256 = new byte[32];
-            //var nonSecretOrg = Encoding.UTF8.GetBytes(token);
-
-            //for (int i = 0; i < 32; i++)
-            //    key256[i] = Convert.ToByte(i % 256);
-
-            //var server = AESGCM.SimpleDecrypt(clientConfig.Server, key256, nonSecretOrg.Length);
-            //var userName = AESGCM.SimpleDecrypt(clientConfig.EmailUserName, key256, nonSecretOrg.Length);
-            //var password = AESGCM.SimpleDecrypt(clientConfig.EmailPassword, key256, nonSecretOrg.Length);
 
             var option = new SmtpClientOptions();
 
@@ -125,9 +115,11 @@ namespace Notify.Services
             option.UseSsl = clientConfig.UseSsl;
 
             email.Sender = new MailKitSender(option);
+
             var status = await email.SendAsync();
             return status;
         }
+
         private void handleResult(Task<SendResponse> response, string type) 
         {
             var emailResult = response.Result;
@@ -152,10 +144,10 @@ namespace Notify.Services
 
         private void decrypt(ref ClientConfiguration configuration)
         {
-            var token = config["SmtpOptions:Signature"];
-            var option = new SmtpClientOptions();
+            //var token = config["SmtpOptions:Signature"];
+            var clientKey = configuration.ClientKeys.First();
             var key256 = new byte[32];
-            var nonSecretOrg = Encoding.UTF8.GetBytes(token);
+            var nonSecretOrg = Encoding.UTF8.GetBytes(clientKey.Key);
 
             for (int i = 0; i < 32; i++)
                 key256[i] = Convert.ToByte(i % 256);

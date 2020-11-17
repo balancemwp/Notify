@@ -9,6 +9,8 @@ namespace Notify.DataAccess.EFCore
     {
         public DbSet<Carrier> Carriers { get; set; }
         public DbSet<ClientConfiguration> ClientConfiguration { get; set; }
+
+        public DbSet<ClientKey> ClientKey { get; set; }
         public DbSet<User> User { get; set; }
         public DbSet<Recipient> Recipient { get; set; }
         public DbSet<Communication> Communication { get; set; }
@@ -23,6 +25,7 @@ namespace Notify.DataAccess.EFCore
             modelBuilder.ApplyConfiguration(new UserConfig());
             modelBuilder.ApplyConfiguration(new CarrierConfig());
             modelBuilder.ApplyConfiguration(new ClientConfigurationConfig());
+            modelBuilder.ApplyConfiguration(new ClientKeyConfig());
             modelBuilder.ApplyConfiguration(new CommunicationConfig());
             modelBuilder.ApplyConfiguration(new CommunicationTypeConfig());
             modelBuilder.ApplyConfiguration(new RecipientConfig());
