@@ -6,6 +6,7 @@ using Notify.Models;
 using Notify.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Notify.Infrastructure.Services;
 
 namespace Notify.Controllers
 {
@@ -13,19 +14,19 @@ namespace Notify.Controllers
     [Route("emailer")]
     public class EmailController : ControllerBase
     {
-        private readonly IEmailService emailService;
+        private readonly INotificationService notificationService;
         private readonly ILogger<EmailController> logger;
 
-        public EmailController(IEmailService emailService, ILogger<EmailController> logger)
+        public EmailController(INotificationService notificationService, ILogger<EmailController> logger)
         {
-            this.emailService = emailService;
+            this.notificationService = notificationService;
             this.logger = logger;
         }
 
         [HttpPost]
         public void Post([FromBody] ClientMessage message)
         {
-            emailService.SendEmail(message);
+            notificationService.SendEmail(message);
         }
 
     }

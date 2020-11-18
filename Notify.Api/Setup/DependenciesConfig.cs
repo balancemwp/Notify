@@ -8,6 +8,7 @@ using Notify.Setup;
 using Notify.DataAccess.EFCore;
 using Notify.Infrastructure.Repository;
 using Notify.DataAccess.Repositories;
+using Notify.Infrastructure.Services;
 
 namespace Notify.Setup
 {
@@ -21,6 +22,7 @@ namespace Notify.Setup
 
             services.AddScoped<ICurrentContextProvider, CurrentContextProvider>();
 
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IEmailService, EmailService>();
 
             services.AddScoped<ICarrierRepository, CarrierRepository>();

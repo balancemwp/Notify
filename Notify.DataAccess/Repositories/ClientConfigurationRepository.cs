@@ -35,6 +35,7 @@ namespace Notify.DataAccess.Repositories
             var context = GetContext();
             return await context.ClientConfiguration.Where(x => x.Id == id)
                 .Include(c => c.Recipients).ThenInclude(r => r.Carrier)
+                .Include(c => c.ClientKeys)
                 .AsNoTracking().FirstOrDefaultAsync();
         }
     }

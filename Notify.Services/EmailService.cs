@@ -17,13 +17,14 @@ using System.Collections.Generic;
 using Notify.Entities;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using Notify.Utitlity;
 
 namespace Notify.Services
 {
     public class EmailService : IEmailService
     {
         private IClientConfigurationRepository clientConfigurationRepository;
-          private IConfiguration config;
+        private IConfiguration config;
         private ILogger<EmailService> logger;
 
         public EmailService(IClientConfigurationRepository clientConfigurationRepository,
@@ -37,6 +38,8 @@ namespace Notify.Services
         public bool SendEmail(ClientMessage clientMessage)
         {
             var clientConfig = clientConfigurationRepository.Get(clientMessage.Id).Result;
+
+            decrypt(ref clientConfig);
 
             var recipientList = clientConfig.Recipients.ToList();
             var emailTo = new List<Address>();
@@ -88,29 +91,47 @@ namespace Notify.Services
 
         private IFluentEmail createEmail(string from, List<Address> to, string subject, string template, ClientMessage clientMessage)
         {
+            Email.DefaultRenderer = new RazorRenderer();
+
             var email = Email
                            .From(from)
                            .To(to)
                            .Subject(subject)
                            .UsingTemplateFromFile(template, clientMessage);
+
             return email;
         }
 
         private async Task<SendResponse> sendEmail(IFluentEmail email, ClientConfiguration clientConfig)
         {
+
             var option = new SmtpClientOptions();
 
-            option.Server = clientConfig.Server;
-            option.User = clientConfig.EmailUserName;
-            option.Password = clientConfig.EmailPassword;
-            option.Port = clientConfig.Port;
-            option.RequiresAuthentication = clientConfig.RequiresAuthentication;
-            option.UseSsl = clientConfig.UseSsl;
+            if (!string.IsNullOrEmpty(this.config["Email:DevMode"]))
+            {
+                option.Server = "localhost";
+                option.User = "";
+                option.Password = "";
+                option.Port = 25;
+                option.RequiresAuthentication = false;
+                option.UseSsl = false;
+            }
+            else
+            {
+                option.Server = clientConfig.Server;
+                option.User = clientConfig.EmailUserName;
+                option.Password = clientConfig.EmailPassword;
+                option.Port = clientConfig.Port;
+                option.RequiresAuthentication = clientConfig.RequiresAuthentication;
+                option.UseSsl = clientConfig.UseSsl;
+            }
 
             email.Sender = new MailKitSender(option);
+
             var status = await email.SendAsync();
             return status;
         }
+
         private void handleResult(Task<SendResponse> response, string type) 
         {
             var emailResult = response.Result;
@@ -131,6 +152,21 @@ namespace Notify.Services
                 var errorMessage = errors.ToString();
                 logger.LogError($"email delivery failed. {errorMessage}");
             }
+        }
+
+        private void decrypt(ref ClientConfiguration configuration)
+        {
+            //var token = config["SmtpOptions:Signature"];
+            var clientKey = configuration.ClientKeys.First();
+            var key256 = new byte[32];
+            var nonSecretOrg = Encoding.UTF8.GetBytes(clientKey.Key);
+
+            for (int i = 0; i < 32; i++)
+                key256[i] = Convert.ToByte(i % 256);
+
+            configuration.Server = AESGCM.SimpleDecrypt(configuration.Server, key256, nonSecretOrg.Length);
+            configuration.EmailUserName = AESGCM.SimpleDecrypt(configuration.EmailUserName, key256, nonSecretOrg.Length);
+            configuration.EmailPassword = AESGCM.SimpleDecrypt(configuration.EmailPassword, key256, nonSecretOrg.Length);
         }
 
     }
