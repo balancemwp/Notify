@@ -107,12 +107,24 @@ namespace Notify.Services
 
             var option = new SmtpClientOptions();
 
-            option.Server = clientConfig.Server;
-            option.User = clientConfig.EmailUserName;
-            option.Password = clientConfig.EmailPassword;
-            option.Port = clientConfig.Port;
-            option.RequiresAuthentication = clientConfig.RequiresAuthentication;
-            option.UseSsl = clientConfig.UseSsl;
+            if (!string.IsNullOrEmpty(this.config["Email:DevMode"]))
+            {
+                option.Server = "localhost";
+                option.User = "";
+                option.Password = "";
+                option.Port = 25;
+                option.RequiresAuthentication = false;
+                option.UseSsl = false;
+            }
+            else
+            {
+                option.Server = clientConfig.Server;
+                option.User = clientConfig.EmailUserName;
+                option.Password = clientConfig.EmailPassword;
+                option.Port = clientConfig.Port;
+                option.RequiresAuthentication = clientConfig.RequiresAuthentication;
+                option.UseSsl = clientConfig.UseSsl;
+            }
 
             email.Sender = new MailKitSender(option);
 
