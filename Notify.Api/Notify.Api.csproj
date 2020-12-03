@@ -5,6 +5,7 @@
     <StartupObject></StartupObject>
     <PreserveCompilationReferences>true</PreserveCompilationReferences>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <UserSecretsId>8bc2b538-79ca-4dca-a5b5-f0b8770f9ee4</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
