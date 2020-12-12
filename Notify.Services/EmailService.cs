@@ -77,7 +77,7 @@ namespace Notify.Services
             {
                 if (item.SendEmail)
                 {
-                    var address = new Address() { EmailAddress = item.Email, Name = "Martin" };
+                    var address = new Address() { EmailAddress = item.Email };
                     emailTo.Add(address);
                 }
 

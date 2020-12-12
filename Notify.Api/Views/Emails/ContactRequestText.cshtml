@@ -1,8 +1,12 @@
 ﻿
 @model Notify.Models.ClientMessage
+    You have a request from @Model.Name.
+    Their email is @Model.Email
 
-    You have a request from @Model.Name.  
-    Thier email is @Model.From and phone # is  @Model.Phone
+    @if (Model.Phone != "")
+    {
+        <text>and phone # is </text> @Model.Phone;
+    }
 
     Message: @Model.Message
 

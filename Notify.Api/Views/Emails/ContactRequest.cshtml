@@ -10,8 +10,26 @@
 </head>
 <body>
     <p>From:  @Model.Name</p>
-    <p>Email:  @Model.From</p>
-    <p>Phone: @Model.Phone</p>
-    <p>Message: @Model.Message</p>
+    <p>Email:  @Model.Email</p>
+
+    @if (Model.Phone != "")
+    {
+        <p>Phone: @Model.Phone</p>
+    }
+
+    @if (Model.Message != "")
+    {
+        <p>Message: @Model.Message</p>
+    }
+
+    @if (Model.CustomValues.Count > 0)
+    {
+        for (int i = 0; i < @Model.CustomValues.Count; i++)
+        {
+            <p>@Model.CustomValues[i]</p>
+        }
+    }
+
+
 </body>
 </html>
