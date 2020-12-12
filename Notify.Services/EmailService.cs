@@ -66,7 +66,7 @@ namespace Notify.Services
 
             var smsSendResponse = sendEmail(textEmail, clientConfig);
             
-            handleResult(smsSendResponse, "text");
+           handleResult(smsSendResponse, "text");
 
             return true;
         }
@@ -107,7 +107,7 @@ namespace Notify.Services
 
             var option = new SmtpClientOptions();
 
-            if (!string.IsNullOrEmpty(this.config["Email:DevMode"]))
+            if (!string.IsNullOrEmpty(this.config["Email:DevMode"]) && this.config["Email:DevMode"] == "true")
             {
                 option.Server = "localhost";
                 option.User = "";
