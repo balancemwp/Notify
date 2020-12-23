@@ -156,7 +156,6 @@ namespace Notify.Services
 
         private void decrypt(ref ClientConfiguration configuration)
         {
-            //var token = config["SmtpOptions:Signature"];
             var clientKey = configuration.ClientKeys.First();
             var key256 = new byte[32];
             var nonSecretOrg = Encoding.UTF8.GetBytes(clientKey.Key);
